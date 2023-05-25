@@ -1,0 +1,66 @@
+Revenue:Pour obtenir le chiffre d'affaires total réalisé. (Revenue = SUM(fact_bookings[revenue_realized]))
+total Booking :Pour obtenir le nombre total de réservations effectuées.(Total Bookings = COUNT(fact_bookings[booking_id]))
+Total capacity :Pour obtenir la capacité totale des chambres présentes dans les hôtels (Total Capacity = SUM(fact_aggregated_bookings[capacity]))
+Total Successful Booking :Pour obtenir le nombre total de réservations réussies pour tous les hôtels (Total Succesful Bookings = SUM(fact_aggregated_bookings[successful_bookings]))
+Occupancy % : Le terme "Occupancy" signifie le nombre total de réservations réussies par rapport au nombre total de chambres disponibles (capacité).(Occupancy % = DIVIDE([Total Succesful Bookings],[Total Capacity],0))
+Average Rating :Obtenir les évaluations moyennes données par les clients.(Average Rating = AVERAGE(fact_bookings[ratings_given]))
+No of days:Pour obtenir le nombre total de jours présents dans les données. (No of days = DATEDIFF(MIN(dim_date[date]),MAX(dim_date[date]),DAY) +1))
+Total cancelled bookings:Pour obtenir le nombre de réservations "annulées" parmi toutes les réservations effectuées.(Total cancelled bookings = CALCULATE([Total Bookings],fact_bookings[booking_status]="Cancelled"))
+Cancellation %:porcentage des reservation annulées (Cancellation % = DIVIDE([Total cancelled bookings],[Total Bookings]))
+Total Checked Out:Pour obtenir le nombre de réservations "Check-out réussi" parmi toutes les réservations effectuées(Total Checked Out = CALCULATE([Total Bookings],fact_bookings[booking_status]="Checked Out"))
+Total no show bookings :Pour obtenir le nombre de réservations "No Show" parmi toutes les réservations effectuées. ("No Show" signifie ces clients qui n'ont ni annulé ni assisté à leur chambre réservée)(Total no show bookings = CALCULATE([Total Bookings],fact_bookings[booking_status]="No Show"))
+No Show rate % :Calcul du pourcentage de réservations "No Show".(No Show rate % = DIVIDE([Total no show bookings],[Total Bookings])
+Booking % by Platform :Afficher la contribution en pourcentage de chaque plateforme de réservation pour les réservations dans les hôtels.
+Nous avons des plateformes de réservation comme MakeYourTrip, LogTrip, Tripster, etc.
+(Booking % by Platform = DIVIDE([Total Bookings],CALCULATE([Total Bookings], ALL(fact_bookings[booking_platform]))
+ADR: Calcul de l'ADR (Tarif Journalier Moyen)Il s'agit du rapport entre le chiffre d'affaires et le nombre total de chambres réservées/vendues. C'est la mesure du prix moyen payé pour les chambres vendues sur une période donnée.(ADR = DIVIDE( [Revenue], [Total Bookings],0))
+Realisation % :Calcul du pourcentage de réalisation.Il s'agit simplement du pourcentage de "check-out réussi" par rapport à toutes les réservations effectuées.(Realisation % = 1- ([Cancellation %]+[No Show rate %]))
+RevPAR:Calcul du RevPAR (Revenu par chambre disponible)Le RevPAR représente le revenu généré par chambre disponible, qu'elle soit occupée ou non. Le RevPAR aide les hôtels à mesurer leur performance de génération de revenus pour fixer des prix de manière précise. Le RevPAR peut aider les hôtels à se mesurer par rapport à d'autres établissements ou marques.(RevPAR = DIVIDE([Revenue],[Total Capacity]))
+DBRN:Calcul du DBRN (Nombre de chambres réservées par jour)Cette métrique indique en moyenne combien de chambres sont réservées par jour sur une période donnée.(DBRN = DIVIDE([Total Bookings], [No of days]))
+DSRN :Calcul du DSRN (Nombre de chambres vendables par jour)Cette métrique indique en moyenne combien de chambres sont prêtes à être vendues par jour sur une période donnée.DSRN = DIVIDE([Total Capacity], [No of days])
+DURN :Calcul du DURN (Nombre de chambres utilisées par jour)Cette métrique indique en moyenne combien de chambres sont utilisées avec succès par les clients pour un jour donné sur une période de temps.(DURN = DIVIDE([Total Checked Out],[No of days]))
+Rvenue WoW change% :Pour obtenir le pourcentage de changement de revenu semaine par semaine, vous pouvez utiliser la formule suivante:((revcw - revpw) / revpw) * 100 (ADR WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([ADR],dim_date[wn]= selv)
+var revpw =  CALCULATE([ADR],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+DIVIDE(revcw,revpw,0)-1)
+Occupancy WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([Occupancy %],dim_date[wn]= selv)
+var revpw =  CALCULATE([Occupancy %],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+Revpar WoW change % =  obtenir le pourcentage de changement de RevPAR (revenu par chambre disponible) semaine par semaine
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([RevPAR],dim_date[wn]= selv)
+var revpw =  CALCULATE([RevPAR],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+ 
+Realisation WoW change % = Pour obtenir le pourcentage de changement de réalisation semaine par semaine, 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([Realisation %],dim_date[wn]= selv)
+var revpw =  CALCULATE([Realisation %],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+DSRN WoW change %:Pour obtenir le pourcentage de changement de DSRN (nuitées vendables quotidiennes) semaine par semaine, 
+DSRN WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([DSRN],dim_date[wn]= selv)
+var revpw =  CALCULATE([DSRN],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+
+
+
+
+
+
+
